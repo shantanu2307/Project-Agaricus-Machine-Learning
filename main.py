@@ -1,9 +1,10 @@
 from flask import Flask
 from flask import request, jsonify, g
 app=Flask(__name__)
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 import pandas as pd
 import numpy as np
-import tensorflow 
+import tensorflow as tf
 import keras
 import sys
 from sklearn.model_selection import train_test_split
@@ -87,16 +88,19 @@ def predict(date):
   predict_input[0]=month
   predict_input[1]=year
   predict_input[market_list.index(date["market"])+2]=1
-  predict_input=np.array([predict_input])
-  print(predict_input)
-  json_file=open('../pythonServer/model.json','r')
-  loaded_model_json=json_file.read()
-  json_file.close()
-  loaded_model=model_from_json(loaded_model_json)
-  loaded_model.load_weights('../pythonServer/model.h5')
-  y = loaded_model.predict(predict_input)
-  print(y)
-  return y[0][0]
+  predict_input=np.array([predict_input], dtype=np.float32)
+  # print(predict_input.shape)
+  interpreter = tf.lite.Interpreter(model_path="converted_model.tflite")
+  interpreter.allocate_tensors()
+  input_details = interpreter.get_input_details()
+  output_details = interpreter.get_output_details()
+  # print(input_details)
+  # print(output_details)
+  interpreter.set_tensor(input_details[0]['index'], predict_input)
+  interpreter.invoke()
+  output_data = interpreter.get_tensor(output_details[0]['index'])
+  print(output_data)
+  return output_data[0][0]
 
 @app.route("/",methods=["POST"])
 def getPrice():
