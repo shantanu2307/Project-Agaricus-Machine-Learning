@@ -4,14 +4,8 @@ app=Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 import pandas as pd
 import numpy as np
-import tensorflow as tf
-import keras
+import tflite_runtime.interpreter as tflite
 import sys
-from sklearn.model_selection import train_test_split
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.models import model_from_json 
-
 import json
 
 market_list=['Asandh',
@@ -90,7 +84,7 @@ def predict(date):
   predict_input[market_list.index(date["market"])+2]=1
   predict_input=np.array([predict_input], dtype=np.float32)
   # print(predict_input.shape)
-  interpreter = tf.lite.Interpreter(model_path="converted_model.tflite")
+  interpreter = tflite.Interpreter(model_path="converted_model.tflite")
   interpreter.allocate_tensors()
   input_details = interpreter.get_input_details()
   output_details = interpreter.get_output_details()
