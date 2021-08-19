@@ -1,7 +1,6 @@
 from flask import Flask
 from flask import request, jsonify, g
 app=Flask(__name__)
-app.config["TEMPLATES_AUTO_RELOAD"] = True
 import pandas as pd
 import numpy as np
 import tflite_runtime.interpreter as tflite
@@ -84,7 +83,7 @@ def predict(date):
   predict_input[market_list.index(date["market"])+2]=1
   predict_input=np.array([predict_input], dtype=np.float32)
   # print(predict_input.shape)
-  interpreter = tflite.Interpreter(model_path="converted_model.tflite")
+  interpreter = tflite.Interpreter(model_path="./app/converted_model.tflite")
   interpreter.allocate_tensors()
   input_details = interpreter.get_input_details()
   output_details = interpreter.get_output_details()
@@ -96,7 +95,7 @@ def predict(date):
   print(output_data)
   return output_data[0][0]
 
-@app.route("/",methods=["GET,POST"])
+@app.route("/",methods=["GET","POST"])
 def getPrice():
   List=[]
   query=request.get_json()
