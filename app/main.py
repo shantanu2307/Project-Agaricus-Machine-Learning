@@ -96,7 +96,7 @@ def predict(date):
   print(output_data)
   return output_data[0][0]
 
-@app.route("/getPrice",methods=["POST"])
+@app.route("/",methods=["GET,POST"])
 def getPrice():
   List=[]
   query=request.get_json()
